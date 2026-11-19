@@ -1,0 +1,491 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador de 13º Salário · Taylor Swift Edition</title>
+<style>
+  :root {
+    --p950:#1e0a3c; --p900:#2e1065; --p800:#4c1d95; --p700:#6d28d9; --p600:#7c3aed; --p500:#8b5cf6;
+    --p300:#c4b5fd; --p200:#ddd6fe; --p100:#ede9fe; --p50:#f7f4ff;
+    --rosa:#f0abfc; --ouro:#fbbf24; --txt:#22143f; --mut:#7a6d99; --red:#d6455d; --ok:#16a37f;
+    --raio:20px;
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; color:var(--txt); background:var(--p50);
+    font-family:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif; line-height:1.45; }
+
+  /* ===== HERO ===== */
+  .hero { position:relative; overflow:hidden; text-align:center; color:#fff; padding:56px 18px 120px;
+    background:
+      radial-gradient(900px 400px at 15% 0%, rgba(240,171,252,.45), transparent 60%),
+      radial-gradient(800px 420px at 90% 10%, rgba(139,92,246,.7), transparent 60%),
+      linear-gradient(160deg,var(--p950),var(--p800) 60%,var(--p600)); }
+  .hero::after { content:""; position:absolute; left:0; right:0; bottom:-1px; height:70px;
+    background:var(--p50); clip-path:ellipse(60% 100% at 50% 100%); }
+  .star { position:absolute; width:3px; height:3px; border-radius:50%; background:#fff; opacity:.8;
+    animation:twinkle 3s ease-in-out infinite; }
+  @keyframes twinkle { 0%,100%{opacity:.15; transform:scale(.7);} 50%{opacity:1; transform:scale(1.5);} }
+  .borboleta { position:absolute; font-size:1.8rem; opacity:.85; animation:voar 9s ease-in-out infinite; }
+  @keyframes voar { 0%,100%{transform:translate(0,0) rotate(-8deg);} 50%{transform:translate(18px,-22px) rotate(10deg);} }
+  .selo { position:relative; display:inline-flex; align-items:center; gap:8px; padding:7px 16px; border-radius:999px;
+    background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.35); backdrop-filter:blur(6px);
+    font-size:.85rem; font-weight:600; letter-spacing:.3px; }
+  .hero h1 { position:relative; margin:18px 0 8px; font-size:clamp(2.1rem,6vw,3.6rem); line-height:1.05; font-weight:800; letter-spacing:-1px; }
+  .hero h1 .n13 { background:linear-gradient(90deg,#fff,var(--rosa),var(--ouro)); -webkit-background-clip:text;
+    background-clip:text; color:transparent; }
+  .hero p { position:relative; margin:0 auto; max-width:620px; font-size:1.05rem; opacity:.92; }
+
+  /* ===== LAYOUT ===== */
+  .wrap { max-width:1120px; margin:-80px auto 0; padding:0 16px 120px; position:relative; z-index:2;
+    display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:22px; align-items:start; }
+  @media (max-width:900px){ .wrap { grid-template-columns:1fr; } }
+  .col { display:grid; gap:18px; }
+  .card { background:#fff; border-radius:var(--raio); padding:22px 22px 24px;
+    box-shadow:0 10px 30px rgba(76,29,149,.12), 0 1px 3px rgba(76,29,149,.08); border:1px solid rgba(124,58,237,.08); }
+  .card h2 { display:flex; align-items:center; gap:10px; margin:0 0 4px; font-size:1.12rem; color:var(--p800); }
+  .card h2 .num { display:grid; place-items:center; width:28px; height:28px; border-radius:50%; color:#fff; font-size:.85rem;
+    background:linear-gradient(135deg,var(--p500),var(--p700)); box-shadow:0 3px 8px rgba(124,58,237,.4); }
+  .card .sub { margin:0 0 6px 38px; color:var(--mut); font-size:.85rem; }
+
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:520px){ .grid2 { grid-template-columns:1fr; } }
+  .campo { display:flex; flex-direction:column; margin-top:14px; }
+  .campo label { font-weight:600; font-size:.84rem; margin-bottom:5px; color:#3b2a66; }
+  .campo label small { color:var(--mut); font-weight:400; }
+  .campo .dica { font-size:.76rem; color:var(--mut); margin-top:4px; }
+  .in { position:relative; }
+  .in .pre { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--mut); font-weight:600; font-size:.9rem; pointer-events:none; }
+  .in input { padding-left:38px; }
+  input, select { width:100%; padding:11px 13px; font:inherit; color:var(--txt); background:#fbfaff;
+    border:1.5px solid var(--p200); border-radius:12px; transition:.15s; }
+  input:hover, select:hover { border-color:var(--p300); }
+  input:focus, select:focus { outline:none; border-color:var(--p600); background:#fff; box-shadow:0 0 0 4px rgba(124,58,237,.15); }
+  .aviso-meses { margin-top:12px; padding:10px 14px; border-radius:12px; background:var(--p100); color:var(--p800); font-size:.88rem; font-weight:600; }
+
+  .btn { cursor:pointer; border:0; font:inherit; font-weight:700; border-radius:12px; padding:12px 18px; transition:.15s; }
+  .btn.pri { color:#fff; background:linear-gradient(135deg,var(--p500),var(--p700)); box-shadow:0 6px 16px rgba(124,58,237,.35); }
+  .btn.pri:hover { transform:translateY(-1px); }
+  .btn.sec { color:var(--p800); background:var(--p100); }
+  .btn.sec:hover { background:var(--p200); }
+  .btns { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+
+  /* ===== RESULTADO ===== */
+  .resultado { position:sticky; top:16px; display:grid; gap:18px; }
+  @media (max-width:900px){ .resultado { position:static; } }
+  .liquido { position:relative; overflow:hidden; border-radius:var(--raio); color:#fff; padding:26px 22px; text-align:center;
+    background:radial-gradient(500px 220px at 85% -10%, rgba(240,171,252,.55), transparent 60%),
+               linear-gradient(150deg,var(--p900),var(--p700));
+    box-shadow:0 14px 34px rgba(76,29,149,.35); }
+  .liquido .rot { font-size:.82rem; letter-spacing:1.5px; text-transform:uppercase; opacity:.85; }
+  .liquido .val { font-size:clamp(2.2rem,6vw,3.1rem); font-weight:800; margin:4px 0 2px; letter-spacing:-1px; }
+  .liquido .bruto { opacity:.85; font-size:.9rem; }
+  .parcelas { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:18px; }
+  .parc { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.22); border-radius:14px; padding:12px 8px; }
+  .parc b { display:block; font-size:1.2rem; }
+  .parc span { font-size:.76rem; opacity:.85; }
+
+  .rosca-box { display:flex; gap:18px; align-items:center; flex-wrap:wrap; justify-content:center; }
+  .rosca { width:150px; height:150px; border-radius:50%; position:relative; flex:none;
+    background:conic-gradient(var(--p600) 0 100%); transition:background .3s; }
+  .rosca::after { content:attr(data-centro); position:absolute; inset:24px; background:#fff; border-radius:50%;
+    display:grid; place-items:center; font-weight:800; color:var(--p800); font-size:1.15rem; }
+  .legenda { display:grid; gap:8px; font-size:.88rem; }
+  .legenda div { display:flex; align-items:center; gap:8px; }
+  .legenda i { width:12px; height:12px; border-radius:4px; flex:none; }
+
+  .linha { display:flex; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px dashed var(--p200); font-size:.93rem; }
+  .linha:last-child { border-bottom:0; }
+  .linha span:last-child { font-weight:700; white-space:nowrap; }
+  .linha.neg span:last-child { color:var(--red); }
+  .linha.pos span:last-child { color:var(--ok); }
+  .linha.tot { font-size:1.02rem; color:var(--p800); border-top:2px solid var(--p200); border-bottom:0; margin-top:4px; }
+  .linha.inf { color:var(--mut); font-size:.85rem; }
+  .resultado h3 { margin:0 0 6px; color:var(--p800); font-size:1rem; }
+
+  /* ===== PRECISÃO ===== */
+  details.prec { grid-column:1/-1; background:#fff; border-radius:var(--raio); padding:6px 22px; border:1px solid rgba(124,58,237,.12);
+    box-shadow:0 6px 18px rgba(76,29,149,.08); }
+  details.prec summary { cursor:pointer; padding:14px 0; font-weight:700; color:var(--p800); }
+  details.prec ul { margin:0 0 16px; padding-left:20px; color:#4b3c73; font-size:.9rem; }
+  details.prec li { margin-bottom:6px; }
+
+  /* ===== BARRA MOBILE ===== */
+  .barra { display:none; position:fixed; left:0; right:0; bottom:0; z-index:20; color:#fff; padding:12px 18px;
+    background:linear-gradient(90deg,var(--p900),var(--p700)); box-shadow:0 -6px 20px rgba(0,0,0,.25);
+    justify-content:space-between; align-items:center; }
+  .barra span { font-size:.8rem; opacity:.85; }
+  .barra b { font-size:1.35rem; }
+  @media (max-width:900px){ .barra { display:flex; } }
+
+  footer { text-align:center; padding:0 16px 110px; color:var(--mut); font-size:.88rem; }
+  footer b { color:var(--p700); }
+  .tst { margin-top:6px; }
+</style>
+</head>
+<body>
+
+<section class="hero" id="hero">
+  <span class="borboleta" style="left:8%;top:30%">🦋</span>
+  <span class="borboleta" style="right:10%;top:18%;animation-delay:-3s">🦋</span>
+  <span class="borboleta" style="right:22%;bottom:30%;animation-delay:-6s;font-size:1.3rem">🦋</span>
+  <span class="selo">✨ Taylor Swift Edition · 13 é o número da sorte dela</span>
+  <h1>Simulador do <span class="n13">13º salário</span></h1>
+  <p>Preencha seus dados e veja, na hora, quanto cai na 1ª e na 2ª parcela, já com INSS e Imposto de Renda.</p>
+</section>
+
+<div class="wrap">
+
+  <!-- ===================== FORMULÁRIO ===================== -->
+  <div class="col">
+
+    <section class="card">
+      <h2><span class="num">1</span> Seu contrato</h2>
+      <p class="sub">Base para saber quantos avos de 13º você tem.</p>
+
+      <div class="grid2">
+        <div class="campo">
+          <label for="salario">Salário bruto mensal</label>
+          <div class="in"><span class="pre">R$</span><input id="salario" type="number" min="0" step="0.01" placeholder="0,00"></div>
+        </div>
+        <div class="campo">
+          <label for="fixos">Adicionais fixos mensais <small>(opcional)</small></label>
+          <div class="in"><span class="pre">R$</span><input id="fixos" type="number" min="0" step="0.01" value="0"></div>
+          <span class="dica">Insalubridade, periculosidade, anuênio, gratificação fixa…</span>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="campo">
+          <label for="admissao">Data de admissão</label>
+          <input id="admissao" type="date">
+        </div>
+        <div class="campo">
+          <label for="ate">Calcular até</label>
+          <select id="ate">
+            <option value="hoje">Hoje (valor acumulado até agora)</option>
+            <option value="fim">31/dez (projeção do 13º cheio)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="faltas">Meses com 15+ dias de falta injustificada ou licença sem salário <small>(opcional)</small></label>
+        <input id="faltas" type="number" min="0" max="12" step="1" value="0">
+        <span class="dica">Cada mês assim não conta como avo de 13º. Afastamento por doença/acidente e férias contam normalmente.</span>
+      </div>
+
+      <div class="aviso-meses" id="infoMeses">Informe a data de admissão.</div>
+    </section>
+
+    <section class="card">
+      <h2><span class="num">2</span> Valores variáveis</h2>
+      <p class="sub">Entram pela média do ano. Deixe zero se você só recebe salário fixo.</p>
+      <div class="grid2">
+        <div class="campo">
+          <label for="extras">Horas extras <small>(total no ano)</small></label>
+          <div class="in"><span class="pre">R$</span><input id="extras" type="number" min="0" step="0.01" value="0"></div>
+        </div>
+        <div class="campo">
+          <label for="comissoes">Comissões / prêmios <small>(total no ano)</small></label>
+          <div class="in"><span class="pre">R$</span><input id="comissoes" type="number" min="0" step="0.01" value="0"></div>
+        </div>
+        <div class="campo">
+          <label for="noturno">Adicional noturno / DSR <small>(total no ano)</small></label>
+          <div class="in"><span class="pre">R$</span><input id="noturno" type="number" min="0" step="0.01" value="0"></div>
+        </div>
+        <div class="campo">
+          <label for="outrosVar">Outras verbas variáveis <small>(total no ano)</small></label>
+          <div class="in"><span class="pre">R$</span><input id="outrosVar" type="number" min="0" step="0.01" value="0"></div>
+        </div>
+      </div>
+      <p class="sub" style="margin:10px 0 0 0" id="infoMedia"></p>
+    </section>
+
+    <section class="card">
+      <h2><span class="num">3</span> Descontos e situação pessoal</h2>
+      <p class="sub">Quanto mais completo, mais próximo do holerite.</p>
+
+      <div class="grid2">
+        <div class="campo">
+          <label for="dependentes">Dependentes no IR</label>
+          <input id="dependentes" type="number" min="0" step="1" value="0">
+          <span class="dica">Cada um abate R$ 189,59 da base do IR.</span>
+        </div>
+        <div class="campo">
+          <label for="outroVinculo">13º bruto em outro emprego <small>(opcional)</small></label>
+          <div class="in"><span class="pre">R$</span><input id="outroVinculo" type="number" min="0" step="0.01" value="0"></div>
+          <span class="dica">Serve para respeitar o teto do INSS com 2 vínculos.</span>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="campo">
+          <label for="pensaoFixa">Pensão alimentícia fixa <small>(opcional)</small></label>
+          <div class="in"><span class="pre">R$</span><input id="pensaoFixa" type="number" min="0" step="0.01" value="0"></div>
+        </div>
+        <div class="campo">
+          <label for="pensaoPct">Pensão em % <small>(opcional)</small></label>
+          <div class="in"><span class="pre">%</span><input id="pensaoPct" type="number" min="0" max="100" step="0.1" value="0"></div>
+          <span class="dica">Calculada sobre o 13º após o INSS.</span>
+        </div>
+        <div class="campo">
+          <label for="pgbl">Previdência privada PGBL <small>(opcional)</small></label>
+          <div class="in"><span class="pre">R$</span><input id="pgbl" type="number" min="0" step="0.01" value="0"></div>
+          <span class="dica">Abate do IR até 12% do 13º bruto.</span>
+        </div>
+        <div class="campo">
+          <label for="outros">Outros descontos na 2ª parcela <small>(opcional)</small></label>
+          <div class="in"><span class="pre">R$</span><input id="outros" type="number" min="0" step="0.01" value="0"></div>
+          <span class="dica">Plano de saúde, sindicato, consignado, vale…</span>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="primeiraReal">1ª parcela que você já recebeu <small>(opcional)</small></label>
+        <div class="in"><span class="pre">R$</span><input id="primeiraReal" type="number" min="0" step="0.01" placeholder="Em branco = 50% do salário proporcional"></div>
+        <span class="dica">Se a empresa pagou um valor diferente (ex.: adiantou nas férias), informe aqui para a 2ª parcela sair certa.</span>
+      </div>
+
+      <div class="btns">
+        <button class="btn sec" id="limpar" type="button">Limpar tudo</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===================== RESULTADO ===================== -->
+  <aside class="resultado">
+    <div class="liquido">
+      <div class="rot">13º líquido estimado</div>
+      <div class="val" id="liquido">R$ 0,00</div>
+      <div class="bruto" id="brutoTopo">Bruto: R$ 0,00</div>
+      <div class="parcelas">
+        <div class="parc"><b id="p1">R$ 0,00</b><span>1ª parcela · até 30/nov<br>sem descontos</span></div>
+        <div class="parc"><b id="p2">R$ 0,00</b><span>2ª parcela · até 20/dez<br>com descontos</span></div>
+      </div>
+    </div>
+
+    <section class="card">
+      <h3>Para onde vai o seu 13º</h3>
+      <div class="rosca-box">
+        <div class="rosca" id="rosca" data-centro="0%"></div>
+        <div class="legenda" id="legenda"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3>Detalhamento</h3>
+      <div id="detalhe"></div>
+      <div class="btns">
+        <button class="btn pri" id="copiar" type="button">📋 Copiar resumo</button>
+      </div>
+    </section>
+  </aside>
+
+  <details class="prec">
+    <summary>🔎 Quão preciso é este cálculo? (leia)</summary>
+    <ul>
+      <li><b>O que está certo:</b> tabela do INSS 2026 (teto de R$ 8.475,55), tabela do IRRF, a isenção até R$ 5.000 e a redução gradual até R$ 7.350 da Lei 15.270/2025, que vale também para o 13º, o desconto simplificado de R$ 607,20 (usado quando for mais vantajoso) e a tributação do 13º separada do salário mensal.</li>
+      <li><b>Pequenas diferenças esperadas (centavos até algumas dezenas de reais):</b> arredondamentos da folha de pagamento, forma como a empresa calcula a média de horas extras e comissões, e DSR sobre variáveis.</li>
+      <li><b>Pode haver diferença maior se:</b> a empresa ou o sindicato tem regra própria (convenção coletiva), você teve faltas ou afastamentos que o simulador não conseguiu enxergar, houve adiantamento do 13º em outra época, ou existem descontos específicos do seu holerite que você não informou.</li>
+      <li><b>Não cobre:</b> rescisão de contrato, empregado doméstico com regras específicas, trabalhador intermitente e parcelamento fora das datas legais.</li>
+      <li>Use como estimativa; o valor oficial é o do holerite. Confirme com o RH ou contador.</li>
+    </ul>
+  </details>
+</div>
+
+<div class="barra"><span>13º líquido estimado</span><b id="barraVal">R$ 0,00</b></div>
+
+<footer>
+  Feito com 💜 para você aproveitar o seu 13º.
+  <div class="tst">Trilha sonora oficial desta calculadora: <b>“Love Story”</b> 🎶🦋</div>
+</footer>
+
+<script>
+// ===== Tabelas 2026 (ajuste aqui quando mudarem) =====
+const INSS_FAIXAS = [[1621.00,0.075],[2902.84,0.09],[4354.27,0.12],[8475.55,0.14]];
+const IR_FAIXAS = [               // [limite, alíquota, dedução]
+  [2428.80,0,0],[2826.65,0.075,182.16],[3751.05,0.15,394.00],[4664.68,0.225,675.49],[Infinity,0.275,908.73]
+];
+const DEDUCAO_DEPENDENTE = 189.59, DESCONTO_SIMPLIFICADO = 607.20;
+const ISENCAO_ATE = 5000.00, REDUCAO_ATE = 7350.00;
+const LIMITE_PGBL = 0.12;
+
+const brl = v => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const $ = id => document.getElementById(id);
+const num = id => Math.max(0, parseFloat($(id).value) || 0);
+const r2 = v => Math.round((v + Number.EPSILON) * 100) / 100;
+const pad = n => String(n).padStart(2,'0');
+const diasNoMes = (ano, mes) => new Date(ano, mes, 0).getDate();   // mes: 1-12
+
+/* ---------- INSS e IRRF ---------- */
+function calcINSS(base) {
+  let total = 0, ant = 0;
+  for (const [lim, aliq] of INSS_FAIXAS) {
+    if (base > ant) total += (Math.min(base, lim) - ant) * aliq;
+    ant = lim;
+  }
+  return r2(total);
+}
+function tabelaIR(base) {
+  for (const [lim, aliq, ded] of IR_FAIXAS) if (base <= lim) return Math.max(0, base * aliq - ded);
+  return 0;
+}
+function calcIR(bruto, inss, dep, pensao, pgbl) {
+  const pgblDedutivel = Math.min(pgbl, bruto * LIMITE_PGBL);
+  const legal = bruto - inss - dep * DEDUCAO_DEPENDENTE - pensao - pgblDedutivel;
+  const simpl = bruto - DESCONTO_SIMPLIFICADO;
+  const usaSimpl = simpl < legal;
+  const base = Math.max(0, usaSimpl ? simpl : legal);
+  const imposto = tabelaIR(base);
+  let reducao = 0;
+  if (bruto <= ISENCAO_ATE) reducao = imposto;
+  else if (bruto <= REDUCAO_ATE) reducao = Math.max(0, 978.62 - 0.133145 * bruto);
+  reducao = Math.min(reducao, imposto);
+  return { valor: r2(imposto - reducao), base: r2(base), reducao: r2(reducao),
+           metodo: usaSimpl ? 'Desconto simplificado' : 'Deduções legais' };
+}
+
+/* ---------- Meses de 13º ---------- */
+// Avo = mês com 15 dias ou mais trabalhados. Conta de janeiro (ou da admissão) até a data de referência.
+function calcMeses() {
+  const info = $('infoMeses');
+  const hoje = new Date();
+  const ano = hoje.getFullYear();
+  const refMes = $('ate').value === 'fim' ? 12 : hoje.getMonth() + 1;
+  const refDia = $('ate').value === 'fim' ? 31 : hoje.getDate();
+  const refTxt = `${pad(refDia)}/${pad(refMes)}/${ano}`;
+  const valor = $('admissao').value;
+
+  if (!valor) { info.textContent = 'Informe a data de admissão para contar os meses.'; return 0; }
+  const [aa, am, ad] = valor.split('-').map(Number);
+  if (aa > ano || (aa === ano && (am > refMes || (am === refMes && ad > refDia)))) {
+    info.textContent = 'A admissão é depois da data de cálculo — nenhum mês contado.'; return 0;
+  }
+  const mesIni = aa < ano ? 1 : am;
+  const diaIni = aa < ano ? 1 : ad;
+  let n = 0;
+  for (let m = mesIni; m <= refMes; m++) {
+    const ini = m === mesIni ? diaIni : 1;
+    const fim = m === refMes ? refDia : diasNoMes(ano, m);
+    if (fim - ini + 1 >= 15) n++;
+  }
+  const faltas = Math.min(Math.floor(num('faltas')), n);
+  n -= faltas;
+  const de = aa < ano ? `01/01/${ano}` : `${pad(ad)}/${pad(am)}/${aa}`;
+  info.textContent = `De ${de} até ${refTxt}: ${n} ${n === 1 ? 'avo' : 'avos'} de 13º (${n}/12)` + (faltas ? ` · ${faltas} desconsiderado(s) por faltas` : '');
+  return n;
+}
+
+/* ---------- Simulação ---------- */
+let ultimo = null;
+function simular() {
+  const salario = num('salario'), fixos = num('fixos');
+  const meses = calcMeses();
+  const dep = Math.floor(num('dependentes'));
+  const totalVar = num('extras') + num('comissoes') + num('noturno') + num('outrosVar');
+  const outroVinc = num('outroVinculo');
+
+  const baseProp = r2((salario + fixos) / 12 * meses);
+  const variaveis = meses > 0 ? r2(totalVar / 12) : 0;        // média do ano × meses/12 = total/12
+  const bruto = r2(baseProp + variaveis);
+
+  const mediaMensal = meses > 0 ? totalVar / meses : 0;
+  $('infoMedia').textContent = totalVar > 0 && meses > 0
+    ? `Média mensal de variáveis: ${brl(mediaMensal)} → ${brl(variaveis)} no 13º.` : '';
+
+  const primeiraAuto = r2(baseProp / 2);
+  const campo1 = $('primeiraReal').value;
+  const primeira = campo1 !== '' ? r2(Math.max(0, parseFloat(campo1) || 0)) : primeiraAuto;
+
+  const inss = Math.max(0, r2(calcINSS(bruto + outroVinc) - calcINSS(outroVinc)));
+  const pensao = r2(num('pensaoFixa') + Math.max(0, bruto - inss) * Math.min(100, num('pensaoPct')) / 100);
+  const pgbl = num('pgbl');
+  const ir = bruto > 0 ? calcIR(bruto, inss, dep, pensao, pgbl) : { valor:0, base:0, reducao:0, metodo:'—' };
+  const outros = num('outros');
+
+  const segunda = r2(bruto - primeira - inss - ir.valor - pensao - pgbl - outros);
+  const liquido = r2(primeira + segunda);
+  const descontos = r2(inss + ir.valor + pensao + pgbl + outros);
+
+  ultimo = { salario, fixos, meses, baseProp, variaveis, bruto, primeira, segunda, inss, ir, pensao, pgbl, outros, liquido, descontos };
+  desenhar(ultimo);
+  salvar();
+}
+
+function desenhar(d) {
+  $('liquido').textContent = brl(d.liquido);
+  $('barraVal').textContent = brl(d.liquido);
+  $('brutoTopo').textContent = 'Bruto: ' + brl(d.bruto);
+  $('p1').textContent = brl(d.primeira);
+  $('p2').textContent = brl(d.segunda);
+
+  const linhas = [
+    ['13º proporcional (salário + fixos)', brl(d.baseProp), ''],
+    ['+ Média de variáveis', brl(d.variaveis), d.variaveis ? 'pos' : ''],
+    ['= 13º bruto', brl(d.bruto), 'tot'],
+    ['INSS', '− ' + brl(d.inss), 'neg'],
+    ['Imposto de Renda (IRRF)', '− ' + brl(d.ir.valor), 'neg'],
+  ];
+  if (d.pensao) linhas.push(['Pensão alimentícia', '− ' + brl(d.pensao), 'neg']);
+  if (d.pgbl) linhas.push(['Previdência privada', '− ' + brl(d.pgbl), 'neg']);
+  if (d.outros) linhas.push(['Outros descontos', '− ' + brl(d.outros), 'neg']);
+  linhas.push(['= 13º líquido', brl(d.liquido), 'tot']);
+  linhas.push(['Base de cálculo do IR', brl(d.ir.base), 'inf']);
+  linhas.push(['Redução da Lei 15.270', brl(d.ir.reducao), 'inf']);
+  linhas.push(['Método do IR', d.ir.metodo, 'inf']);
+  $('detalhe').innerHTML = linhas.map(([a, b, c]) => `<div class="linha ${c}"><span>${a}</span><span>${b}</span></div>`).join('');
+
+  // gráfico de rosca
+  const total = d.liquido + d.descontos;
+  const cores = { liq:'#7c3aed', inss:'#f0abfc', ir:'#fbbf24', out:'#9ca3af' };
+  const outrosDesc = d.pensao + d.pgbl + d.outros;
+  const fatias = [['Você recebe', d.liquido, cores.liq], ['INSS', d.inss, cores.inss], ['IRRF', d.ir.valor, cores.ir], ['Outros descontos', outrosDesc, cores.out]];
+  let acc = 0, partes = [];
+  if (total > 0) {
+    fatias.forEach(([, v, c]) => { const p = v / total * 100; partes.push(`${c} ${acc}% ${acc + p}%`); acc += p; });
+    $('rosca').style.background = `conic-gradient(${partes.join(',')})`;
+    $('rosca').dataset.centro = Math.round(d.liquido / total * 100) + '%';
+  } else {
+    $('rosca').style.background = '#ede9fe'; $('rosca').dataset.centro = '–';
+  }
+  $('legenda').innerHTML = fatias.filter(f => f[1] > 0 || f[0] === 'Você recebe')
+    .map(([n, v, c]) => `<div><i style="background:${c}"></i><span>${n}: <b>${brl(v)}</b></span></div>`).join('');
+}
+
+/* ---------- Copiar, salvar, limpar ---------- */
+$('copiar').addEventListener('click', async () => {
+  if (!ultimo) return;
+  const d = ultimo;
+  const txt = [`Simulação de 13º salário`, `Avos: ${d.meses}/12`, `13º bruto: ${brl(d.bruto)}`, `INSS: ${brl(d.inss)}`, `IRRF: ${brl(d.ir.valor)}`,
+    `1ª parcela: ${brl(d.primeira)}`, `2ª parcela: ${brl(d.segunda)}`, `13º líquido: ${brl(d.liquido)}`].join('\n');
+  try { await navigator.clipboard.writeText(txt); } catch (e) { prompt('Copie o resumo:', txt); return; }
+  const b = $('copiar'); b.textContent = '✅ Copiado!'; setTimeout(() => b.textContent = '📋 Copiar resumo', 1500);
+});
+
+const CAMPOS = ['salario','fixos','admissao','ate','faltas','extras','comissoes','noturno','outrosVar','dependentes','outroVinculo','pensaoFixa','pensaoPct','pgbl','outros','primeiraReal'];
+const PADRAO = { fixos:0, ate:'hoje', faltas:0, extras:0, comissoes:0, noturno:0, outrosVar:0, dependentes:0, outroVinculo:0, pensaoFixa:0, pensaoPct:0, pgbl:0, outros:0 };
+function salvar() { try { const o = {}; CAMPOS.forEach(c => o[c] = $(c).value); localStorage.setItem('sim13', JSON.stringify(o)); } catch (e) {} }
+function carregar() { try { const o = JSON.parse(localStorage.getItem('sim13') || '{}'); CAMPOS.forEach(c => { if (o[c] !== undefined) $(c).value = o[c]; }); } catch (e) {} }
+
+$('limpar').addEventListener('click', () => {
+  CAMPOS.forEach(c => $(c).value = PADRAO[c] !== undefined ? PADRAO[c] : '');
+  simular();
+});
+CAMPOS.forEach(c => $(c).addEventListener('input', simular));
+
+/* ---------- Estrelas do topo ---------- */
+const hero = $('hero');
+for (let i = 0; i < 50; i++) {
+  const s = document.createElement('span'); s.className = 'star';
+  s.style.left = Math.random() * 100 + '%'; s.style.top = Math.random() * 85 + '%';
+  s.style.animationDelay = (Math.random() * 3) + 's';
+  hero.appendChild(s);
+}
+
+carregar();
+simular();
+</script>
+</body>
+</html>
